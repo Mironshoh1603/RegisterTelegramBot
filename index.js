@@ -1,4 +1,3 @@
-const { match } = require("assert");
 const TelegramBot = require("node-telegram-bot-api");
 let step, name, phoneNumber, locationAddress, age, course, university, message;
 
