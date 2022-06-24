@@ -7,20 +7,18 @@ const bot = new TelegramBot(token, { polling: true });
 // step ? (step = step) : (step = 0);
 let botArr = [];
 
-bot.onText(/\/echo (.+)/, (msg, match) => {
-  const chatId = msg.chat.id;
-  const response = match[1];
-
-  bot.sendMessage(chatId, response);
-});
-
 bot.on("message", (msg) => {
   console.log(msg.text);
+  if (!botArr.find((val) => val.id === msg.from.id)) {
+    botArr.push({ id: msg.from.id, username: msg.from.username });
+  }
+
   const chatId = msg.chat.id;
-  if (msg.text !== "/start") {
+  if (!(msg.text === /\/start/)) {
     if (step === 1) {
-      console.log(msg);
-      botArr.push({ id: msg.from.id, username: msg.from.username });
+      // console.log(msg);
+      name = msg.text;
+
       var options = {
         reply_markup: JSON.stringify({
           keyboard: [[{ text: "Share Number", request_contact: true }]],
