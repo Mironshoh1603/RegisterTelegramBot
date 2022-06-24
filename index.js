@@ -2,56 +2,75 @@ const bot = require("./bot");
 const commandFunctions = require("./commands");
 const user = require("./userFinder");
 const botArr = require("./data");
+const User = require("./userSchema");
 
 const app = function () {
   bot.on("message", (msg) => {
-    console.log(msg.text);
+    // console.log(msg.text);
     if (!user(msg.from.id)) {
       botArr.push({ id: msg.from.id, username: msg.from.username, step: 0 });
     }
 
     const chatId = msg.chat.id;
     if (msg.text !== "/start") {
-      console.log("ISHLADI");
+      // console.log("ISHLADI");
       const step = user(chatId).step;
       let userObj = user(chatId);
       if (step === 1) {
         // console.log(msg);
-        userObj.name = msg.text;
+        if (!Number(msg.text)) {
+          userObj.name = msg.text;
 
-        var options = {
-          reply_markup: JSON.stringify({
-            keyboard: [[{ text: "Share Number", request_contact: true }]],
-            resize_keyboard: true,
-            one_time_keyboard: true,
-          }),
-        };
-        message = `Sizning Ismingiz:${userObj.name}.\n Endi Telefon raqamingizni kiriting`;
-        bot.sendMessage(chatId, message, options);
-        user(chatId).step = 2;
+          var options = {
+            reply_markup: JSON.stringify({
+              keyboard: [[{ text: "Share Number", request_contact: true }]],
+              resize_keyboard: true,
+              one_time_keyboard: true,
+            }),
+          };
+          message = `Sizning Ismingiz:${userObj.name}.\n Endi Telefon raqamingizni kiriting`;
+          bot.sendMessage(chatId, message, options);
+          user(chatId).step = 2;
+        } else {
+          bot.sendMessage(chatId, "Ismingizni to'gri kiriting");
+        }
       } else if (step === 2) {
-        userObj.phoneNumber = msg.contact.phone_number;
-        // telefon raqamni kiritgandan keyin
-        var options = {
-          reply_markup: JSON.stringify({
-            keyboard: [[{ text: "Share Location", request_location: true }]],
-            resize_keyboard: true,
-            one_time_keyboard: true,
-          }),
-        };
-        message = `Sizning ismingiz ${userObj.name}.\nTelefon raqamingiz ${userObj.phoneNumber}.\n Endi Joylashgan o'rningizni jo'nating:`;
-        bot.sendMessage(chatId, message, options);
-        user(chatId).step = 3;
+        if (msg.contact.phone_number) {
+          userObj.phoneNumber = msg.contact.phone_number;
+          // telefon raqamni kiritgandan keyin
+          var options = {
+            reply_markup: JSON.stringify({
+              keyboard: [[{ text: "Share Location", request_location: true }]],
+              resize_keyboard: true,
+              one_time_keyboard: true,
+            }),
+          };
+          message = `Sizning ismingiz ${userObj.name}.\nTelefon raqamingiz ${userObj.phoneNumber}.\n Endi Joylashgan o'rningizni jo'nating:`;
+          bot.sendMessage(chatId, message, options);
+          user(chatId).step = 3;
+        } else {
+          bot.sendMessage(
+            chatId,
+            "Telefon raqamingizni pastda chiqayotgan tugmani bosib jo'nating!"
+          );
+        }
       } else if (step === 3) {
-        userObj.locationAddress = msg.location;
-        var options = {
-          reply_markup: JSON.stringify({
-            remove_keyboard: true,
-          }),
-        };
-        message = `Sizning ismingiz ${userObj.name}.\nTelefon raqamingiz ${userObj.phoneNumber}.\n Endi Joylashgan o'rningizni ${userObj.locationAddress.latitude} ${userObj.locationAddress.longitude}\nEndi Yoshingizni kiriting:`;
-        bot.sendMessage(chatId, message, options);
-        user(chatId).step = 4;
+        if (msg.location) {
+          userObj.locationAddress = msg.location;
+          var options = {
+            reply_markup: JSON.stringify({
+              remove_keyboard: true,
+            }),
+          };
+          message = `Sizning ismingiz ${userObj.name}.\nTelefon raqamingiz ${userObj.phoneNumber}.\n Endi Joylashgan o'rningizni ${userObj.locationAddress.latitude} ${userObj.locationAddress.longitude}\nEndi Yoshingizni kiriting:`;
+          bot.sendMessage(chatId, message, options);
+          user(chatId).step = 4;
+        } else {
+          bot.sendMessage(
+            chatId,
+            "Lakatsangizni pastda chiqayotgan tugmani bosib jo'nating!"
+          );
+        }
       }
       //Courslarni  Jo'natish
       else if (step === 4) {
@@ -89,7 +108,7 @@ const app = function () {
       }
       // check Data
       else if (step === 6) {
-        console.log(msg);
+        // console.log(msg);
         userObj.university = msg.text;
         const options = {
           reply_to_message_id: msg.message_id,
@@ -113,10 +132,12 @@ const app = function () {
   // callback_data
   bot.on("callback_query", function (query) {
     // increment counter when everytime the button is pressed
-    console.log(query);
+
+    let userObj = user(query.message.chat.id);
     if (query.data === "Checked") {
-      console.log(query, "qalesan");
       bot.sendMessage(query.message.chat.id, "Ma'lumotlar tasdiqlandi");
+      User.create(userObj);
+      botArr.splice(botArr.indexOf(userObj), 1);
     }
   });
 
