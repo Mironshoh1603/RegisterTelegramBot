@@ -114,6 +114,9 @@ const app = function () {
           reply_to_message_id: msg.message_id,
           parse_mode: "html",
           reply_markup: JSON.stringify({
+            reply_markup: JSON.stringify({
+              remove_keyboard: true,
+            }),
             inline_keyboard: [
               [{ text: "Tasdiqlayman", callback_data: "Checked" }],
             ],
