@@ -14,7 +14,7 @@ const commandFunctions = () => {
     bot.sendMessage(msg.chat.id, message);
 
     user(msg.chat.id)["step"] = 1;
-    console.log(user(msg.chat.id));
+    
   });
 };
 
