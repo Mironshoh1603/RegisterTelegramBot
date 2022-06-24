@@ -1,12 +1,13 @@
-const bot = require("./commands");
+const bot = require("./bot");
 const commandFunctions = require("./commands");
-let botArr = [];
+const user = require("./userFinder");
+const botArr = require("./data");
 let step, name, phoneNumber, locationAddress, age, course, university, message;
 
 bot.on("message", (msg) => {
   console.log(msg.text);
-  if (!botArr.find((val) => val.id === msg.from.id)) {
-    botArr.push({ id: msg.from.id, username: msg.from.username });
+  if (!user(msg.from.id)) {
+    botArr.push({ id: msg.from.id, username: msg.from.username, step: 0 });
   }
 
   const chatId = msg.chat.id;
@@ -105,11 +106,6 @@ bot.on("message", (msg) => {
 
       bot.sendMessage(chatId, message, options);
       step = 7;
-    } else {
-      message =
-        "Assalamu Aleykum, Botimizga Xush kelibsiz!\n Ism-familyangizni kiriting: ";
-      bot.sendMessage(chatId, message);
-      step = 1;
     }
   }
 });
@@ -124,21 +120,9 @@ bot.on("callback_query", function (query) {
   }
 });
 
-bot.onText(/\/exit/, (msg) => {
-  step -= 1;
-  bot.sendMessage(msg.message.chat.id, "Bitta oldingiz operatsiyaga qaytdiz:");
+bot.on("polling_error", (error) => {
+  console.log(error); // => 'EFATAL'
 });
-bot.onText(/\/start/, (msg) => {
-  // console.log("salom");
-  message =
-    "Assalamu Aleykum, Botimizga Xush kelibsiz!\n Ism-familyangizni kiriting: ";
-  bot.sendMessage(msg.chat.id, message);
-  step = 1;
-});
-
-// bot.on("polling_error", (error) => {
-//   console.log(error); // => 'EFATAL'
-// });
 
 // process.on("uncaughtException", function (error) {
 //   console.log("\x1b[31m", "Exception: ", error, "\x1b[0m");
