@@ -1,11 +1,7 @@
-const TelegramBot = require("node-telegram-bot-api");
-let step, name, phoneNumber, locationAddress, age, course, university, message;
-
-const token = "2078043643:AAFcIdvRx9AvvbgT_JL955SzyySGGezFowg";
-
-const bot = new TelegramBot(token, { polling: true });
-// step ? (step = step) : (step = 0);
+const bot = require("./commands");
+const commandFunctions = require("./commands");
 let botArr = [];
+let step, name, phoneNumber, locationAddress, age, course, university, message;
 
 bot.on("message", (msg) => {
   console.log(msg.text);
@@ -14,7 +10,8 @@ bot.on("message", (msg) => {
   }
 
   const chatId = msg.chat.id;
-  if (!(msg.text === /\/start/)) {
+  if (msg.text !== "/start") {
+    console.log("ISHLADI");
     if (step === 1) {
       // console.log(msg);
       name = msg.text;
@@ -132,13 +129,22 @@ bot.onText(/\/exit/, (msg) => {
   bot.sendMessage(msg.message.chat.id, "Bitta oldingiz operatsiyaga qaytdiz:");
 });
 bot.onText(/\/start/, (msg) => {
-  console.log("salom");
+  // console.log("salom");
   message =
     "Assalamu Aleykum, Botimizga Xush kelibsiz!\n Ism-familyangizni kiriting: ";
   bot.sendMessage(msg.chat.id, message);
   step = 1;
 });
 
-bot.on("polling_error", (error) => {
-  console.log(error); // => 'EFATAL'
-});
+// bot.on("polling_error", (error) => {
+//   console.log(error); // => 'EFATAL'
+// });
+
+// process.on("uncaughtException", function (error) {
+//   console.log("\x1b[31m", "Exception: ", error, "\x1b[0m");
+// });
+
+// process.on("unhandledRejection", function (error, p) {
+//   console.log("\x1b[31m", "Error: ", error.message, "\x1b[0m");
+// });
+commandFunctions();
